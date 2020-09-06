@@ -46,6 +46,16 @@ services:
             WORDPRESS_DB_USER: root
             WORDPRESS_DB_PASSWORD: '${DB_ROOT_PASSWORD}'
 
+    wpcli:
+        image: wordpress:cli
+        container_name: ${PROJECT_NAME}-wp-cli
+        volumes:
+            - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
+            - ./wordpress_files:/var/www/html
+        depends_on:
+            - db
+            - wordpress
+
 volumes:
     wordpress_files:
     db_data:
