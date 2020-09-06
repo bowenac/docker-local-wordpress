@@ -1,4 +1,9 @@
 version: '3.3'
+# Variables defined in .env file
+# ${IP}
+# ${PROJECT_NAME}
+# ${DB_NAME}
+# ${DB_ROOT_PASSWORD}
 
 services:
     db:
