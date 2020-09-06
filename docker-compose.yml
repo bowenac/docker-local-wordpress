@@ -1,0 +1,46 @@
+version: '3.3'
+
+services:
+    db:
+        image: mysql:latest # or mariadb https://hub.docker.com/_/mariadb
+        container_name: ${PROJECT_NAME}-db
+        volumes:
+            - ./db_data:/var/lib/mysql # to persits database so we do not lose data when stop/starting container
+        ports:
+            - ${IP}:3306:3306 # change ip if required
+        command: ['--default_authentication_plugin=mysql_native_password', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+        environment:
+            MYSQL_DATABASE: '${DB_NAME}'
+            MYSQL_ROOT_PASSWORD: '${DB_ROOT_PASSWORD}'
+
+    phpmyadmin:
+        depends_on:
+            - db
+        image: phpmyadmin:latest
+        container_name: ${PROJECT_NAME}-db-admin
+        restart: always
+        ports:
+            - ${IP}:8080:80
+        environment:
+            PMA_HOST: db
+            MYSQL_ROOT_PASSWORD: '${DB_ROOT_PASSWORD}'
+
+    wordpress:
+        container_name: ${PROJECT_NAME}
+        depends_on:
+            - db
+        image: wordpress:latest
+        volumes:
+            - ./wordpress_files:/var/www/html # All Wordpress files added in same directory where you add this docker-compose.yml file
+        ports:
+            - ${IP}:80:80
+        restart: always
+        environment:
+            WORDPRESS_DB_HOST: db:3306
+            WORDPRESS_DB_NAME: '${DB_NAME}'
+            WORDPRESS_DB_USER: root
+            WORDPRESS_DB_PASSWORD: '${DB_ROOT_PASSWORD}'
+
+volumes:
+    wordpress_files:
+    db_data:
