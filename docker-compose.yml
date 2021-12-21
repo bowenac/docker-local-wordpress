@@ -29,6 +29,8 @@ services:
         environment:
             PMA_HOST: db
             MYSQL_ROOT_PASSWORD: '${DB_ROOT_PASSWORD}'
+        volumes:
+            - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
 
     wordpress:
         container_name: ${PROJECT_NAME}
@@ -37,6 +39,7 @@ services:
         image: wordpress:latest
         volumes:
             - ./wordpress_files:/var/www/html # All Wordpress files added in same directory where you add this docker-compose.yml file
+            - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
         ports:
             - ${IP}:80:80
         restart: always
@@ -52,9 +55,22 @@ services:
         volumes:
             - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
             - ./wordpress_files:/var/www/html
+        environment:
+            WORDPRESS_DB_HOST: db:3306
+            WORDPRESS_DB_NAME: '${DB_NAME}'
+            WORDPRESS_DB_USER: root
+            WORDPRESS_DB_PASSWORD: '${DB_ROOT_PASSWORD}'
         depends_on:
             - db
             - wordpress
+
+    mailhog:
+        image: mailhog/mailhog
+        logging:
+            driver: 'none' # disable saving logs
+        ports:
+            - 1025:1025 # smtp server for smtp host just use mailhog for host, and 1025 port, no auth for testing
+            - 8025:8025 # web ui
 
 volumes:
     wordpress_files:
